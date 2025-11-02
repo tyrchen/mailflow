@@ -1,0 +1,26 @@
+From: test@yourdomain.com
+To: _app1@yourdomain.com
+Subject: Email with Inline Images
+MIME-Version: 1.0
+Content-Type: multipart/related; boundary="----=_Part_123"
+
+------=_Part_123
+Content-Type: text/html; charset=UTF-8
+
+<html>
+<body>
+<h1>Test Email with Inline Image</h1>
+<p>This email contains an inline image:</p>
+<img src="cid:image001@test" alt="Test Image" />
+</body>
+</html>
+
+------=_Part_123
+Content-Type: image/png; name="test.png"
+Content-ID: <image001@test>
+Content-Disposition: inline; filename="test.png"
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+
+------=_Part_123--

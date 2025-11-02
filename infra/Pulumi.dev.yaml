@@ -1,0 +1,12 @@
+config:
+  aws:region: us-east-1
+  mailflow:environment: dev
+  mailflow:domains:
+    secure: AAABAGQl7wctr2NVhWedhG6EpiFk2jvqLxTmEo6oXXlp0N7BIQGnBaw+LWagQfxfAjkTMfASR0Heb1A=
+  mailflow:apps:
+    - app1
+    - app2
+    - app1-test
+    - app2-test
+  aws:profile:
+    secure: AAABADf0A1G7j2HZ2+iTygagGvFDMiTD1Nooef1DAlFsBmD3AE/dxeKwRCjD4dVSVZDPfwg=

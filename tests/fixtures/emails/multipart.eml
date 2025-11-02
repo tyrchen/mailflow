@@ -1,0 +1,23 @@
+From: sender@example.com
+To: _app1@acme.com
+Subject: Multipart Email
+Date: Wed, 31 Oct 2025 12:00:00 +0000
+Message-ID: <test789@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="alt-boundary"
+
+--alt-boundary
+Content-Type: text/plain; charset="UTF-8"
+
+This is the plain text version.
+
+--alt-boundary
+Content-Type: text/html; charset="UTF-8"
+
+<html>
+<body>
+<p>This is the <strong>HTML</strong> version.</p>
+</body>
+</html>
+
+--alt-boundary--

@@ -1,0 +1,29 @@
+{
+    "name": "mailflow",
+    "version": "1.0.0",
+    "description": "Pulumi infrastructure for Mailflow email dispatching system",
+    "main": "src/index.ts",
+    "scripts": {
+        "build": "tsc",
+        "deploy": "pulumi up",
+        "destroy": "pulumi destroy",
+        "preview": "pulumi preview"
+    },
+    "keywords": [
+        "pulumi",
+        "aws",
+        "lambda",
+        "ses",
+        "sqs"
+    ],
+    "author": "Tyr Chen",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^24.9.2",
+        "typescript": "^5.9.3"
+    },
+    "dependencies": {
+        "@pulumi/pulumi": "^3.205.0",
+        "@pulumi/aws": "^7.10.0"
+    }
+}

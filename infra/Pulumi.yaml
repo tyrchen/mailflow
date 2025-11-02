@@ -1,0 +1,11 @@
+name: mailflow
+description: Mailflow email dispatching system infrastructure
+main: src/
+runtime:
+  name: nodejs
+  options:
+    packagemanager: yarn
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-typescript

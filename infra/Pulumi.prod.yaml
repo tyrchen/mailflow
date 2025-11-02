@@ -1,0 +1,10 @@
+config:
+  aws:region: us-east-1
+  mailflow:environment: prod
+  mailflow:domains:
+    - acme.com
+    - example.com
+  mailflow:apps:
+    - app1
+    - app2
+    - invoices

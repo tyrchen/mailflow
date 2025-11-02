@@ -1,0 +1,14 @@
+# Clippy configuration
+
+# Warn on all lints by default
+msrv = "1.89.0"
+
+# Allow some specific lints
+allow-unwrap-in-tests = true
+allow-dbg-in-tests = true
+
+# Deny specific lints
+disallowed-methods = []
+
+# Cognitive complexity threshold
+cognitive-complexity-threshold = 30

@@ -1,0 +1,6 @@
+[submodule "vendors/mail-parser"]
+	path = vendors/mail-parser
+	url = https://github.com/stalwartlabs/mail-parser
+[submodule "vendors/lettre"]
+	path = vendors/lettre
+	url = https://github.com/lettre/lettre

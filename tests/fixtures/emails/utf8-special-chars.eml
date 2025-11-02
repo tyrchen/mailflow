@@ -1,0 +1,14 @@
+From: test@yourdomain.com
+To: _app1@yourdomain.com
+Subject: UTF-8 Test with Emoji 🎉 and Special Characters
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+This email contains various special characters:
+- Emoji: 🎉 🚀 💡 ✅
+- Accents: café, naïve, résumé
+- Symbols: © ® ™ € £ ¥
+- Math: ∑ ∏ √ ∞
+- Chinese: 你好世界
+- Arabic: مرحبا بالعالم
+- Cyrillic: Привет мир

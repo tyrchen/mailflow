@@ -1,0 +1,8 @@
+node_modules/
+bin/
+*.js
+*.js.map
+package-lock.json
+.pulumi/
+*.lock
+assets/*.zip

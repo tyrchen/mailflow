@@ -1,0 +1,7 @@
+From: test@yourdomain.com
+To: _app1@yourdomain.com, _app2@yourdomain.com
+Subject: Multi-Recipient Test Email
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+This email should be routed to multiple applications.

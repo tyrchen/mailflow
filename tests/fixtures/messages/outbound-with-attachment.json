@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "correlationId": "test-12345-attachment",
+  "timestamp": "2025-11-01T12:00:00Z",
+  "source": "test-suite",
+  "email": {
+    "from": {
+      "address": "_app1@yourdomain.com",
+      "name": "Test App"
+    },
+    "to": [
+      {
+        "address": "recipient@example.com",
+        "name": "Test Recipient"
+      }
+    ],
+    "cc": [],
+    "bcc": [],
+    "replyTo": {
+      "address": "_app1@yourdomain.com"
+    },
+    "subject": "Test with Attachment",
+    "body": {
+      "text": "Please see attached document",
+      "html": "<p>Please see attached document</p>"
+    },
+    "attachments": [
+      {
+        "filename": "test.pdf",
+        "contentType": "application/pdf",
+        "size": 1024,
+        "s3Bucket": "mailflow-attachments-dev",
+        "s3Key": "test/test.pdf"
+      }
+    ],
+    "headers": {
+      "inReplyTo": null,
+      "references": []
+    }
+  },
+  "options": {
+    "priority": "normal",
+    "scheduledSendTime": null,
+    "trackOpens": false,
+    "trackClicks": false
+  }
+}

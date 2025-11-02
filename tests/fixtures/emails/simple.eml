@@ -1,0 +1,8 @@
+From: sender@example.com
+To: _app1@acme.com
+Subject: Test Email
+Date: Wed, 31 Oct 2025 12:00:00 +0000
+Message-ID: <test123@example.com>
+Content-Type: text/plain; charset="UTF-8"
+
+This is a simple test email.

@@ -1,0 +1,10 @@
+From: test@yourdomain.com
+To: _app1@yourdomain.com
+Subject: Re: Original Email Thread
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Message-ID: <reply-12345@yourdomain.com>
+In-Reply-To: <original-12345@yourdomain.com>
+References: <original-12345@yourdomain.com>
+
+This is a reply to the original email thread.

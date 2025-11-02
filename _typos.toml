@@ -1,0 +1,5 @@
+[default.extend-words]
+Thi = "Thi"
+
+[files]
+extend-exclude = ["CHANGELOG.md", "vendors/*"]

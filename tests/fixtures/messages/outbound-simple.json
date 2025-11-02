@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "correlationId": "test-12345-simple",
+  "timestamp": "2025-11-01T12:00:00Z",
+  "source": "test-suite",
+  "email": {
+    "from": {
+      "address": "_app1@yourdomain.com",
+      "name": "Test App"
+    },
+    "to": [
+      {
+        "address": "recipient@example.com",
+        "name": "Test Recipient"
+      }
+    ],
+    "cc": [],
+    "bcc": [],
+    "replyTo": {
+      "address": "_app1@yourdomain.com"
+    },
+    "subject": "Test Response",
+    "body": {
+      "text": "This is a test response",
+      "html": "<p>This is a test response</p>"
+    },
+    "attachments": [],
+    "headers": {
+      "inReplyTo": null,
+      "references": []
+    }
+  },
+  "options": {
+    "priority": "normal",
+    "scheduledSendTime": null,
+    "trackOpens": false,
+    "trackClicks": false
+  }
+}
