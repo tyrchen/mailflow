@@ -5,21 +5,41 @@ export function createStorage(environment: string) {
     // S3 bucket for attachments
     const attachmentsBucket = new aws.s3.Bucket(`mailflow-attachments-${environment}`, {
         bucket: `mailflow-attachments-${environment}`,
-        lifecycleRules: [
+        tags: {
+            Environment: environment,
+            Service: "mailflow",
+        },
+    });
+
+    // Lifecycle configuration for attachments bucket
+    const attachmentsLifecycle = new aws.s3.BucketLifecycleConfiguration(`mailflow-attachments-lifecycle-${environment}`, {
+        bucket: attachmentsBucket.id,
+        rules: [
             {
-                enabled: true,
+                id: "delete-old-attachments",
+                status: "Enabled",
                 expiration: {
                     days: 30, // Delete attachments after 30 days
                 },
             },
         ],
-        serverSideEncryptionConfiguration: {
-            rule: {
+    });
+
+    // Server-side encryption configuration for attachments bucket
+    const attachmentsEncryption = new aws.s3.BucketServerSideEncryptionConfiguration(`mailflow-attachments-encryption-${environment}`, {
+        bucket: attachmentsBucket.id,
+        rules: [
+            {
                 applyServerSideEncryptionByDefault: {
                     sseAlgorithm: "AES256",
                 },
             },
-        },
+        ],
+    });
+
+    // CORS configuration for attachments bucket
+    const attachmentsCors = new aws.s3.BucketCorsConfiguration(`mailflow-attachments-cors-${environment}`, {
+        bucket: attachmentsBucket.id,
         corsRules: [
             {
                 allowedMethods: ["GET"],
@@ -28,34 +48,41 @@ export function createStorage(environment: string) {
                 maxAgeSeconds: 3600,
             },
         ],
+    });
+
+    // S3 bucket for raw emails
+    const rawEmailsBucket = new aws.s3.Bucket(`mailflow-raw-emails-${environment}`, {
+        bucket: `mailflow-raw-emails-${environment}`,
         tags: {
             Environment: environment,
             Service: "mailflow",
         },
     });
 
-    // S3 bucket for raw emails
-    const rawEmailsBucket = new aws.s3.Bucket(`mailflow-raw-emails-${environment}`, {
-        bucket: `mailflow-raw-emails-${environment}`,
-        lifecycleRules: [
+    // Lifecycle configuration for raw emails bucket
+    const rawEmailsLifecycle = new aws.s3.BucketLifecycleConfiguration(`mailflow-raw-emails-lifecycle-${environment}`, {
+        bucket: rawEmailsBucket.id,
+        rules: [
             {
-                enabled: true,
+                id: "delete-old-emails",
+                status: "Enabled",
                 expiration: {
                     days: 7, // Delete raw emails after 7 days
                 },
             },
         ],
-        serverSideEncryptionConfiguration: {
-            rule: {
+    });
+
+    // Server-side encryption configuration for raw emails bucket
+    const rawEmailsEncryption = new aws.s3.BucketServerSideEncryptionConfiguration(`mailflow-raw-emails-encryption-${environment}`, {
+        bucket: rawEmailsBucket.id,
+        rules: [
+            {
                 applyServerSideEncryptionByDefault: {
                     sseAlgorithm: "AES256",
                 },
             },
-        },
-        tags: {
-            Environment: environment,
-            Service: "mailflow",
-        },
+        ],
     });
 
     // Block public access
@@ -93,5 +120,10 @@ export function createStorage(environment: string) {
         attachmentsBucket,
         bucketPolicy,
         publicAccessBlock,
+        attachmentsLifecycle,
+        attachmentsEncryption,
+        attachmentsCors,
+        rawEmailsLifecycle,
+        rawEmailsEncryption,
     };
 }

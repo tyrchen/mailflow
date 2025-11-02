@@ -46,7 +46,7 @@ pub fn redact_email_full(text: &str) -> String {
 /// ```
 /// use mailflow::utils::logging::redact_subject;
 ///
-/// assert_eq!(redact_subject("Confidential Document"), "Con...[11 chars]");
+/// assert_eq!(redact_subject("Confidential Document"), "Con...[21 chars]");
 /// assert_eq!(redact_subject("Hi"), "Hi");
 /// ```
 pub fn redact_subject(subject: &str) -> String {

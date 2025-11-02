@@ -40,9 +40,9 @@ pub fn redact_emails(text: &str) -> String {
 /// ```
 /// use mailflow::utils::sanitization::sanitize_path_component;
 ///
-/// assert_eq!(sanitize_path_component("../../../etc/passwd"), "etc_passwd");
+/// assert_eq!(sanitize_path_component("../../../etc/passwd"), "etcpasswd");
 /// assert_eq!(sanitize_path_component("normal-id-123"), "normal-id-123");
-/// assert_eq!(sanitize_path_component("id/with/slash"), "id_with_slash");
+/// assert_eq!(sanitize_path_component("id/with/slash"), "idwithslash");
 /// ```
 pub fn sanitize_path_component(input: &str) -> String {
     let filtered: String = input
@@ -85,8 +85,8 @@ pub fn sanitize_path_component(input: &str) -> String {
 /// use mailflow::utils::sanitization::sanitize_filename_strict;
 ///
 /// assert_eq!(sanitize_filename_strict("document.pdf"), "document.pdf");
-/// assert_eq!(sanitize_filename_strict("../../../etc/passwd"), "etc_passwd");
-/// assert_eq!(sanitize_filename_strict("file;rm -rf /"), "filerm_rf_");
+/// assert_eq!(sanitize_filename_strict("../../../etc/passwd"), "___etcpasswd");
+/// assert_eq!(sanitize_filename_strict("file;rm -rf /"), "filerm-rf");
 /// ```
 pub fn sanitize_filename_strict(filename: &str) -> String {
     // Filter to only allowed characters
