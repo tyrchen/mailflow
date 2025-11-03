@@ -128,8 +128,23 @@ async fn process_record(
         raw_email.len()
     );
 
-    // 4. Check rate limit
+    // 3.5 Validate sender domain
     let config = ctx.config.get_config().await?;
+    let security_validator =
+        crate::services::security::SecurityValidator::new(config.security.clone());
+
+    security_validator.validate_sender_domain(&email.from.address)?;
+    info!(
+        "Sender domain validated for: {}",
+        redact_email(&email.from.address)
+    );
+
+    // Emit metric for successful validation
+    ctx.metrics
+        .record_counter("SenderDomainValidationSuccess", 1.0, &[])
+        .await;
+
+    // 4. Check rate limit
     ctx.rate_limiter
         .check_rate_limit(
             &email.from.address,

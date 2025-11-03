@@ -64,6 +64,7 @@ fn create_test_config() -> MailflowConfig {
             require_dkim: false,
             require_dmarc: false,
             max_emails_per_sender_per_hour: 100,
+            allowed_sender_domains: vec![],
         },
         retention: RetentionConfig {
             raw_emails: 7,

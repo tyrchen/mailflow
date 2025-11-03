@@ -88,6 +88,9 @@ pub struct SecurityConfig {
     #[serde(default)]
     pub require_dmarc: bool,
     pub max_emails_per_sender_per_hour: u32,
+    /// Allowed sender email domains (empty = allow all domains)
+    #[serde(default)]
+    pub allowed_sender_domains: Vec<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -123,7 +126,8 @@ mod tests {
                 "max_size": 36700160
             },
             "security": {
-                "max_emails_per_sender_per_hour": 100
+                "max_emails_per_sender_per_hour": 100,
+                "allowed_sender_domains": []
             },
             "retention": {
                 "raw_emails": 7,

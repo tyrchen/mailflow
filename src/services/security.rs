@@ -116,6 +116,52 @@ impl SecurityValidator {
         Ok(())
     }
 
+    /// Validates sender email domain against allowlist
+    ///
+    /// Returns Ok(()) if domain is allowed or allowlist is empty, Err otherwise
+    pub fn validate_sender_domain(&self, sender_email: &str) -> Result<(), MailflowError> {
+        use crate::utils::logging::redact_email;
+
+        // If allowlist is empty, allow all domains (backward compatible)
+        if self.security_config.allowed_sender_domains.is_empty() {
+            return Ok(());
+        }
+
+        // Extract domain from email address
+        let domain = sender_email
+            .split('@')
+            .nth(1)
+            .ok_or_else(|| {
+                MailflowError::Validation(format!(
+                    "Invalid email address format: {}",
+                    redact_email(sender_email)
+                ))
+            })?
+            .to_lowercase();
+
+        // Check if domain is in allowlist (case-insensitive)
+        let allowed = self
+            .security_config
+            .allowed_sender_domains
+            .iter()
+            .any(|allowed_domain| allowed_domain.to_lowercase() == domain);
+
+        if allowed {
+            tracing::debug!(domain = %domain, "Sender domain allowed");
+            Ok(())
+        } else {
+            warn!(
+                domain = %domain,
+                sender = %redact_email(sender_email),
+                "Sender domain not in allowlist"
+            );
+            Err(MailflowError::Validation(format!(
+                "Sender domain '{}' is not in the allowlist",
+                domain
+            )))
+        }
+    }
+
     /// Checks if sender is trusted (future: implement blacklist/whitelist)
     pub fn is_trusted_sender(&self, _sender: &str) -> bool {
         // TODO: Implement sender reputation checking
@@ -137,6 +183,7 @@ mod tests {
             require_dkim,
             require_dmarc: false,
             max_emails_per_sender_per_hour: 100,
+            allowed_sender_domains: vec![],
         }
     }
 
@@ -232,5 +279,82 @@ mod tests {
         assert!(validator.validate_email_size(1024).is_ok());
         assert!(validator.validate_email_size(40 * 1024 * 1024).is_ok());
         assert!(validator.validate_email_size(50 * 1024 * 1024).is_err());
+    }
+
+    #[test]
+    fn test_validate_sender_domain_allowed() {
+        let mut config = create_test_config(false, false);
+        config.allowed_sender_domains = vec!["abc.com".to_string()];
+        let validator = SecurityValidator::new(config);
+
+        assert!(validator.validate_sender_domain("user@abc.com").is_ok());
+    }
+
+    #[test]
+    fn test_validate_sender_domain_blocked() {
+        let mut config = create_test_config(false, false);
+        config.allowed_sender_domains = vec!["abc.com".to_string()];
+        let validator = SecurityValidator::new(config);
+
+        let result = validator.validate_sender_domain("user@blocked.com");
+        assert!(result.is_err());
+        let err_msg = result.unwrap_err().to_string();
+        assert!(err_msg.contains("not in the allowlist"));
+    }
+
+    #[test]
+    fn test_validate_sender_domain_case_insensitive() {
+        let mut config = create_test_config(false, false);
+        config.allowed_sender_domains = vec!["ABC.COM".to_string()];
+        let validator = SecurityValidator::new(config);
+
+        assert!(validator.validate_sender_domain("user@abc.com").is_ok());
+        assert!(validator.validate_sender_domain("user@ABC.COM").is_ok());
+        assert!(validator.validate_sender_domain("user@AbC.cOm").is_ok());
+    }
+
+    #[test]
+    fn test_validate_sender_domain_empty_allowlist() {
+        let config = create_test_config(false, false);
+        let validator = SecurityValidator::new(config);
+
+        // Empty allowlist should allow all domains
+        assert!(
+            validator
+                .validate_sender_domain("user@any-domain.com")
+                .is_ok()
+        );
+    }
+
+    #[test]
+    fn test_validate_sender_domain_invalid_email() {
+        let mut config = create_test_config(false, false);
+        config.allowed_sender_domains = vec!["abc.com".to_string()];
+        let validator = SecurityValidator::new(config);
+
+        let result = validator.validate_sender_domain("invalid-email");
+        assert!(result.is_err());
+        let err_msg = result.unwrap_err().to_string();
+        assert!(err_msg.contains("Invalid email address format"));
+    }
+
+    #[test]
+    fn test_validate_sender_domain_multiple_allowed() {
+        let mut config = create_test_config(false, false);
+        config.allowed_sender_domains = vec![
+            "abc.com".to_string(),
+            "example.org".to_string(),
+            "test.net".to_string(),
+        ];
+        let validator = SecurityValidator::new(config);
+
+        assert!(validator.validate_sender_domain("user@abc.com").is_ok());
+        assert!(validator.validate_sender_domain("user@example.org").is_ok());
+        assert!(validator.validate_sender_domain("user@test.net").is_ok());
+        assert!(
+            validator
+                .validate_sender_domain("user@blocked.com")
+                .is_err()
+        );
     }
 }

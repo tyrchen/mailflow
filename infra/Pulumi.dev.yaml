@@ -8,5 +8,7 @@ config:
     - app2
     - app1-test
     - app2-test
+  mailflow:allowedSenderDomains:
+    secure: AAABAEAmiM/9pL4XHNIsKGi7hC0Ap1Z1LOQSlcL+xxa5OQUAeLoLhR16fJw3dodHqkYzRa1ChpH4yOXbTjiGwYdxDqz7YN3RZcpMPxBvfzuByan5
   aws:profile:
     secure: AAABADf0A1G7j2HZ2+iTygagGvFDMiTD1Nooef1DAlFsBmD3AE/dxeKwRCjD4dVSVZDPfwg=

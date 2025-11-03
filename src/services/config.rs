@@ -32,6 +32,14 @@ impl EnvConfigProvider {
             .map(|s| s.trim().to_string())
             .collect();
 
+        // Parse allowed sender domains from environment
+        let allowed_sender_domains = std::env::var("ALLOWED_SENDER_DOMAINS")
+            .unwrap_or_default()
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .collect::<Vec<String>>();
+
         let config = MailflowConfig {
             version: "1.0".to_string(),
             domains: allowed_domains,
@@ -64,6 +72,7 @@ impl EnvConfigProvider {
                 require_dkim: false,
                 require_dmarc: false,
                 max_emails_per_sender_per_hour: 100,
+                allowed_sender_domains,
             },
             retention: RetentionConfig {
                 raw_emails: 7,

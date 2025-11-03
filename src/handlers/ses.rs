@@ -126,6 +126,13 @@ async fn process_ses_record(
         raw_email.len()
     );
 
+    // Validate sender domain
+    security_validator.validate_sender_domain(&email.from.address)?;
+    info!(
+        "Sender domain validated for: {}",
+        redact_email(&email.from.address)
+    );
+
     // Process attachments if any
     if !email.attachments_data.is_empty() {
         let attachment_config = AttachmentConfig::from_env()?;

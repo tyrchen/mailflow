@@ -11,11 +11,12 @@ export interface LambdaConfig {
     dlq: aws.sqs.Queue;
     idempotencyTable: aws.dynamodb.Table;
     domains: string[];
+    allowedSenderDomains: string[];
     environment: string;
 }
 
 export function createLambdaFunction(config: LambdaConfig) {
-    const { role, rawEmailsBucket, attachmentsBucket, appQueues, outboundQueue, defaultQueue, dlq, idempotencyTable, domains, environment } =
+    const { role, rawEmailsBucket, attachmentsBucket, appQueues, outboundQueue, defaultQueue, dlq, idempotencyTable, domains, allowedSenderDomains, environment } =
         config;
 
     // Build routing map from app queues
@@ -53,6 +54,7 @@ export function createLambdaFunction(config: LambdaConfig) {
                 DEFAULT_QUEUE_URL: defaultQueue.url,
                 DLQ_URL: dlq.url,
                 ALLOWED_DOMAINS: domains.join(","),
+                ALLOWED_SENDER_DOMAINS: allowedSenderDomains.join(","),
                 PRESIGNED_URL_EXPIRATION_SECONDS: "604800",
                 MAX_ATTACHMENT_SIZE_BYTES: "36700160",
                 ALLOWED_CONTENT_TYPES: "*",

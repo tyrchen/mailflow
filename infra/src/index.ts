@@ -12,10 +12,14 @@ const config = new pulumi.Config();
 const environment = config.require("environment");
 const domains = config.requireObject<string[]>("domains");
 const apps = config.requireObject<string[]>("apps");
+const allowedSenderDomains = config.getObject<string[]>("allowedSenderDomains") || [];
 
 console.log(`Deploying Mailflow infrastructure for environment: ${environment}`);
 console.log(`Apps: ${apps.join(", ")}`);
 console.log(`Domains: ${domains.join(", ")}`);
+if (allowedSenderDomains.length > 0) {
+    console.log(`Allowed sender domains: ${allowedSenderDomains.join(", ")}`);
+}
 
 // 1. Create S3 storage
 const storage = createStorage(environment);
@@ -53,6 +57,7 @@ const lambda = createLambdaFunction({
     dlq: queues.dlq,
     idempotencyTable: database.idempotencyTable,
     domains,
+    allowedSenderDomains,
     environment,
 });
 
