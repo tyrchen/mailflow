@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [0.2.1](https://github.com/compare/v0.2.0..v0.2.1) - 2025-11-03
+
+### Miscellaneous Chores
+
+- fix gh - ([731b40b](https://github.com/commit/731b40b6fc8a88ed18512dcf9d690dd16016ad4b)) - Tyr Chen
+
+### Other
+
+- Update CHANGELOG.md - ([557fd0f](https://github.com/commit/557fd0f138bdcc0039f123654495cbbfd57cf3ab)) - Tyr Chen
+
+---
 ## [0.2.0] - 2025-11-02
 
 ### Features
