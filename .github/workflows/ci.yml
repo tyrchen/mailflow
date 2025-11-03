@@ -69,11 +69,15 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - name: Install Rust toolchain and cargo-lambda
+        uses: moonrepo/setup-rust@v1
+        with:
+          bins: cargo-lambda
 
-      - name: Install cargo-lambda
-        uses: cargo-lambda/setup-cargo-lambda@v3
+      - name: Install Zig toolchain
+        uses: mlugg/setup-zig@v1
+        with:
+          version: 0.14.0
 
       - name: Build for Lambda (ARM64)
         run: cargo lambda build --release --arm64
