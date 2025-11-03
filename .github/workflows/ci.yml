@@ -80,7 +80,7 @@ jobs:
           version: 0.14.0
 
       - name: Build for Lambda (ARM64)
-        run: cargo lambda build --release --arm64
+        run: cargo lambda build --release --arm64 --output-format zip
 
       - name: Generate a changelog
         uses: orhun/git-cliff-action@v4
