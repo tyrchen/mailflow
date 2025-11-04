@@ -6,5 +6,16 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-refine': ['@refinedev/core', '@refinedev/antd', '@refinedev/react-router'],
+          'vendor-antd': ['antd'],
+          'vendor-charts': ['recharts'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
   },
 })

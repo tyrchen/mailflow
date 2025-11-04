@@ -111,8 +111,17 @@ clean:
 
 # Run cargo audit for security vulnerabilities
 audit:
-	@echo "Auditing dependencies..."
+	@echo "Auditing Rust dependencies..."
 	@cargo audit
+
+# Run dashboard security audit
+audit-dashboard:
+	@echo "Auditing dashboard dependencies..."
+	@cd dashboard && yarn audit
+
+# Run all security audits
+audit-all: audit audit-dashboard
+	@echo "✅ All security audits complete"
 
 # Update dependencies
 update:
@@ -201,8 +210,10 @@ help:
 	@echo "  e2e-list       - List all E2E tests"
 	@echo "  e2e-clean      - Clean E2E artifacts"
 	@echo ""
-	@echo "Maintenance:"
-	@echo "  clean          - Clean build artifacts"
-	@echo "  audit          - Audit dependencies for vulnerabilities"
-	@echo "  update         - Update dependencies"
-	@echo "  help           - Show this help message"
+	@echo "Security & Maintenance:"
+	@echo "  audit            - Audit Rust dependencies"
+	@echo "  audit-dashboard  - Audit dashboard dependencies"
+	@echo "  audit-all        - Run all security audits"
+	@echo "  clean            - Clean build artifacts"
+	@echo "  update           - Update dependencies"
+	@echo "  help             - Show this help message"

@@ -184,3 +184,7 @@ mailflow/dashboard on  master [!?⇡] is 📦 v0.2.2 via  v24.10.0
 
 23 directories
 ```
+
+## review dashboard code
+
+look at the @specs/0007-dashboard.md and review the code, especially the dashboard code, think ultra hard and see what still missing and could be improved. Put a detailed review report and implementation plan under @specs/reviews/0003-dashboard-review.md.
