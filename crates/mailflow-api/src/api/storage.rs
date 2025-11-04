@@ -77,6 +77,11 @@ pub async fn stats(
     for bucket in buckets_result.buckets() {
         let bucket_name = bucket.name().unwrap_or("").to_string();
 
+        // Only include mailflow-related buckets
+        if !bucket_name.starts_with("mailflow-") {
+            continue;
+        }
+
         // List objects to get stats (simplified - would paginate in production)
         let objects_result = ctx
             .s3_client

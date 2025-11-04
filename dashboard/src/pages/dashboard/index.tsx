@@ -17,7 +17,7 @@ export const DashboardPage = () => {
   const { query: inboundQuery } = useCustom({
     url: '/metrics/timeseries',
     method: 'get',
-    config: {
+    meta: {
       query: {
         metric: 'inbound_received',
         period: '24h',
@@ -33,7 +33,7 @@ export const DashboardPage = () => {
   const { query: outboundQuery } = useCustom({
     url: '/metrics/timeseries',
     method: 'get',
-    config: {
+    meta: {
       query: {
         metric: 'outbound_sent',
         period: '24h',

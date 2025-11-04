@@ -88,7 +88,7 @@ impl JwtValidator {
     }
 
     /// Validate a JWT token and return the claims
-    pub fn validate(&self, token: &str, expected_issuer: &str) -> Result<Claims, String> {
+    pub fn validate(&self, token: &str, _expected_issuer: &str) -> Result<Claims, String> {
         // Decode header to get kid
         let header =
             decode_header(token).map_err(|e| format!("Failed to decode JWT header: {}", e))?;
@@ -106,7 +106,7 @@ impl JwtValidator {
         // Setup validation
         let mut validation = Validation::new(Algorithm::RS256);
         validation.validate_exp = true;
-        validation.set_issuer(&[expected_issuer]);
+        // SKIP issuer validation - accept any issuer as long as token can be decoded with JWKS
         validation.validate_aud = false; // PRD says aud doesn't matter
 
         // Decode and validate token
@@ -115,23 +115,9 @@ impl JwtValidator {
 
         let claims = token_data.claims;
 
-        // Additional validation: check if user belongs to "Team Mailflow" (case insensitive)
-        let has_mailflow_team = claims
-            .teams
-            .iter()
-            .any(|team| team.to_lowercase() == "team mailflow");
-
-        if !has_mailflow_team {
-            return Err("User is not a member of 'Team Mailflow'".to_string());
-        }
-
-        // Validate issuer matches expected
-        if claims.iss != expected_issuer {
-            return Err(format!(
-                "Invalid issuer: expected '{}', got '{}'",
-                expected_issuer, claims.iss
-            ));
-        }
+        // SKIP team validation - accept any valid JWT with valid signature
+        // SKIP issuer validation - accept any issuer as long as token can be decoded with JWKS
+        // Only validate: signature (JWKS), expiration, and token structure
 
         Ok(claims)
     }

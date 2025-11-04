@@ -13,6 +13,7 @@ pub use error::ApiError;
 use axum::{
     Router,
     body::Body as AxumBody,
+    extract::DefaultBodyLimit,
     http::{Method, header},
     middleware as axum_middleware,
     routing::{get, post},
@@ -84,6 +85,8 @@ pub async fn handler(ctx: Arc<ApiContext>, event: Request) -> Result<Response<Bo
                 ])
                 .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]),
         )
+        // Increase body size limit to 10MB (API Gateway max)
+        .layer(DefaultBodyLimit::max(10 * 1024 * 1024))
         // Add API context
         .with_state(ctx);
 

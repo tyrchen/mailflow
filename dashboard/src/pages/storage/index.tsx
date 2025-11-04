@@ -24,7 +24,7 @@ export const StoragePage = () => {
   const { query: objectsQuery } = useCustom({
     url: `/storage/${bucketToQuery}/objects`,
     method: 'get',
-    config: {
+    meta: {
       query: {
         limit: 20,
       },

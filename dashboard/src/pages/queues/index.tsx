@@ -99,7 +99,7 @@ export const QueuesPage = () => {
   const { show } = useNavigation();
 
   const { query } = useCustom<QueuesResponse>({
-    url: '/api/queues',
+    url: '/queues',
     method: 'get',
   });
 
@@ -337,8 +337,11 @@ export const QueueDetailPage = () => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
 
   const { query } = useCustom<QueueMessagesResponse>({
-    url: `/api/queues/${name}/messages`,
+    url: `/queues/${name}/messages`,
     method: 'get',
+    queryOptions: {
+      enabled: !!name && name !== ':name',
+    },
   });
 
   const { data, isLoading, refetch } = query;

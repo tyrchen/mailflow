@@ -23,10 +23,11 @@ export const TestEmailPage = () => {
   const [sendingOutbound, setSendingOutbound] = useState(false);
 
   const handleFileUpload = (file: File) => {
-    // Check total size
+    // Check total size - limit to 7MB to account for base64 encoding overhead (~33%)
+    // 7MB * 1.33 = 9.31MB, leaving room for JSON structure under API Gateway's 10MB limit
     const totalSize = attachments.reduce((sum, att) => sum + att.size, 0) + file.size;
-    if (totalSize > 10 * 1024 * 1024) {
-      message.error('Total attachment size cannot exceed 10 MB');
+    if (totalSize > 7 * 1024 * 1024) {
+      message.error('Total attachment size cannot exceed 7 MB (API Gateway limit)');
       return false;
     }
 
@@ -179,7 +180,7 @@ export const TestEmailPage = () => {
                       <Button icon={<UploadOutlined />}>Upload Attachment</Button>
                     </Upload>
                     <div className="text-sm text-gray-500 mt-2">
-                      Max total size: 10 MB. Current: {(attachments.reduce((sum, att) => sum + att.size, 0) / 1024 / 1024).toFixed(2)} MB
+                      Max total size: 7 MB (due to base64 encoding + API Gateway 10MB limit). Current: {(attachments.reduce((sum, att) => sum + att.size, 0) / 1024 / 1024).toFixed(2)} MB
                     </div>
                   </Form.Item>
 

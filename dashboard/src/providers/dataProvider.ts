@@ -42,12 +42,13 @@ export const dataProvider: DataProvider = {
 
   getApiUrl: () => import.meta.env.VITE_API_URL || '/api',
 
-  custom: async ({ url, method, payload, headers }) => {
+  custom: async ({ url, method, payload, headers, query, meta }) => {
     const { data } = await apiClient.request({
       url,
       method,
       data: payload,
       headers,
+      params: query || meta?.query,
     });
 
     return { data };

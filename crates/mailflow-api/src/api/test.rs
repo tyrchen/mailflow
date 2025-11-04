@@ -148,8 +148,9 @@ pub async fn inbound(
         .send()
         .await
         .map_err(|e| {
-            error!("Failed to send test email via SES: {}", e);
-            ApiError::Aws(format!("SES send failed: {}", e))
+            error!("Failed to send test email via SES: {:?}", e);
+            error!("From: {}, To: {}", req.from, to_address);
+            ApiError::Aws(format!("SES send failed: {:?}. Check if email addresses are verified in SES (SES might be in sandbox mode)", e))
         })?;
 
     let ses_message_id = Some(ses_result.message_id().to_string());
