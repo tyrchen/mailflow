@@ -1,0 +1,77 @@
+[package]
+name = "mailflow-api"
+description = "Dashboard API Lambda for Mailflow system"
+readme = "README.md"
+categories = ["web-programming", "email"]
+keywords = ["api", "aws", "lambda", "dashboard", "admin"]
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+documentation.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[[bin]]
+name = "bootstrap"
+path = "src/main.rs"
+
+[dependencies]
+# Local dependencies
+mailflow-core = { path = "../mailflow-core" }
+
+# AWS SDK
+aws-config = { workspace = true }
+aws-sdk-s3 = { workspace = true }
+aws-sdk-sqs = { workspace = true }
+aws-sdk-cloudwatch = { workspace = true }
+aws-sdk-cloudwatchlogs = { workspace = true }
+aws-sdk-dynamodb = { workspace = true }
+aws-sdk-ses = { workspace = true }
+aws-smithy-types = { workspace = true }
+
+# Lambda Runtime
+lambda_runtime = { workspace = true }
+lambda_http = { workspace = true }
+tokio = { workspace = true }
+
+# Web Framework
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true, features = ["cors", "trace"] }
+
+# HTTP
+http = { workspace = true }
+http-body = { workspace = true }
+http-body-util = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# JWT Authentication
+jsonwebtoken = { workspace = true }
+
+# Error Handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging and Tracing
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# Utilities
+chrono = { workspace = true }
+base64 = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+uuid = { workspace = true }
+
+# Email composition (for test emails)
+lettre = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"
+wiremock = "0.6"

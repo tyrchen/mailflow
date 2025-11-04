@@ -38,7 +38,7 @@ pub fn redact_emails(text: &str) -> String {
 ///
 /// # Examples
 /// ```
-/// use mailflow::utils::sanitization::sanitize_path_component;
+/// use mailflow_core::utils::sanitization::sanitize_path_component;
 ///
 /// assert_eq!(sanitize_path_component("../../../etc/passwd"), "etcpasswd");
 /// assert_eq!(sanitize_path_component("normal-id-123"), "normal-id-123");
@@ -82,7 +82,7 @@ pub fn sanitize_path_component(input: &str) -> String {
 ///
 /// # Examples
 /// ```
-/// use mailflow::utils::sanitization::sanitize_filename_strict;
+/// use mailflow_core::utils::sanitization::sanitize_filename_strict;
 ///
 /// assert_eq!(sanitize_filename_strict("document.pdf"), "document.pdf");
 /// assert_eq!(sanitize_filename_strict("../../../etc/passwd"), "___etcpasswd");

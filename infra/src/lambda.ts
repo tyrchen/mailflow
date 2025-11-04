@@ -97,3 +97,72 @@ export function createLambdaFunction(config: LambdaConfig) {
         sqsEventSource,
     };
 }
+
+export interface ApiLambdaConfig {
+    role: aws.iam.Role;
+    environment: string;
+    jwtIssuer: string;
+    outboundQueueUrl: pulumi.Output<string>;
+    testHistoryTableName: pulumi.Output<string>;
+    allowedDomains: string[];
+}
+
+export function createApiLambda(config: ApiLambdaConfig) {
+    const { role, environment, jwtIssuer, outboundQueueUrl, testHistoryTableName, allowedDomains } = config;
+
+    // Read JWKS from file
+    const fs = require("fs");
+    const path = require("path");
+    const jwksPath = path.join(__dirname, "../.jwks.json");
+
+    let jwksJson = "{}";
+    if (fs.existsSync(jwksPath)) {
+        jwksJson = fs.readFileSync(jwksPath, "utf8");
+    } else {
+        console.warn(`JWKS file not found at ${jwksPath}. API authentication will not work.`);
+    }
+
+    // API Lambda function
+    const apiLambda = new aws.lambda.Function(`mailflow-api-${environment}`, {
+        name: `mailflow-api-${environment}`,
+        runtime: "provided.al2023",
+        handler: "bootstrap",
+        role: role.arn,
+        timeout: 30,
+        memorySize: 256,
+        architectures: ["arm64"],
+        code: new pulumi.asset.FileArchive("../assets/api-bootstrap.zip"),
+        environment: {
+            variables: pulumi
+                .all([outboundQueueUrl, testHistoryTableName])
+                .apply(([queueUrl, tableName]) => ({
+                    RUST_LOG: "info",
+                    JWKS_JSON: jwksJson,
+                    JWT_ISSUER: jwtIssuer,
+                    OUTBOUND_QUEUE_URL: queueUrl,
+                    TEST_HISTORY_TABLE: tableName,
+                    ALLOWED_DOMAINS: allowedDomains.join(","),
+                    ENVIRONMENT: environment,
+                })),
+        },
+        tags: {
+            Environment: environment,
+            Service: "mailflow-api",
+        },
+    });
+
+    // CloudWatch Log Group
+    const logGroup = new aws.cloudwatch.LogGroup(`mailflow-api-logs-${environment}`, {
+        name: pulumi.interpolate`/aws/lambda/${apiLambda.name}`,
+        retentionInDays: 30,
+        tags: {
+            Environment: environment,
+            Service: "mailflow-api",
+        },
+    });
+
+    return {
+        function: apiLambda,
+        logGroup,
+    };
+}

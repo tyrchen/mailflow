@@ -22,7 +22,28 @@ export function createDatabaseTables(environment: string) {
         },
     });
 
+    // Test history table for dashboard
+    const testHistoryTable = new aws.dynamodb.Table(`mailflow-test-history-${environment}`, {
+        name: `mailflow-test-history-${environment}`,
+        billingMode: "PAY_PER_REQUEST",
+        hashKey: "id",
+        rangeKey: "timestamp",
+        attributes: [
+            { name: "id", type: "S" },
+            { name: "timestamp", type: "S" },
+        ],
+        ttl: {
+            attributeName: "expiresAt",
+            enabled: true,
+        },
+        tags: {
+            Environment: environment,
+            Service: "mailflow",
+        },
+    });
+
     return {
         idempotencyTable,
+        testHistoryTable,
     };
 }

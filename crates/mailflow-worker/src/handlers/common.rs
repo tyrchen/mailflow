@@ -1,8 +1,8 @@
-/// Common handler utilities shared across inbound, outbound, and SES handlers
-use crate::error::MailflowError;
-use crate::services::metrics::{Metrics, MetricsService};
-use crate::services::sqs::QueueService;
 use chrono::Utc;
+/// Common handler utilities shared across inbound, outbound, and SES handlers
+use mailflow_core::error::MailflowError;
+use mailflow_core::services::metrics::{Metrics, MetricsService};
+use mailflow_core::services::sqs::QueueService;
 use serde_json::Value;
 use tracing::error;
 
@@ -105,9 +105,9 @@ fn sanitize_error_message(error: &MailflowError) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::services::metrics::MockMetricsService;
-    use crate::services::sqs::QueueService;
     use async_trait::async_trait;
+    use mailflow_core::services::metrics::MockMetricsService;
+    use mailflow_core::services::sqs::QueueService;
     use std::sync::Arc;
     use tokio::sync::Mutex;
 

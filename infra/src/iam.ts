@@ -120,3 +120,110 @@ export function createLambdaRole(
         policy: lambdaPolicy,
     };
 }
+
+export function createApiLambdaRole(environment: string) {
+    // IAM role for API Lambda
+    const apiLambdaRole = new aws.iam.Role(`mailflow-api-lambda-role-${environment}`, {
+        name: `mailflow-api-lambda-role-${environment}`,
+        assumeRolePolicy: JSON.stringify({
+            Version: "2012-10-17",
+            Statement: [
+                {
+                    Action: "sts:AssumeRole",
+                    Effect: "Allow",
+                    Principal: {
+                        Service: "lambda.amazonaws.com",
+                    },
+                },
+            ],
+        }),
+        tags: {
+            Environment: environment,
+            Service: "mailflow-api",
+        },
+    });
+
+    // API Lambda execution policy - read-only access to AWS resources
+    const apiLambdaPolicy = new aws.iam.RolePolicy(`mailflow-api-lambda-policy-${environment}`, {
+        role: apiLambdaRole.id,
+        policy: JSON.stringify({
+            Version: "2012-10-17",
+            Statement: [
+                {
+                    Sid: "CloudWatchLogsAccess",
+                    Effect: "Allow",
+                    Action: [
+                        "logs:CreateLogGroup",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents",
+                        "logs:FilterLogEvents",
+                        "logs:DescribeLogGroups",
+                        "logs:DescribeLogStreams",
+                        "logs:GetLogEvents",
+                    ],
+                    Resource: "*",
+                },
+                {
+                    Sid: "S3ReadAccess",
+                    Effect: "Allow",
+                    Action: [
+                        "s3:ListBucket",
+                        "s3:GetObject",
+                        "s3:GetObjectAttributes",
+                        "s3:ListBucketVersions",
+                    ],
+                    Resource: "*",
+                },
+                {
+                    Sid: "SQSAccess",
+                    Effect: "Allow",
+                    Action: [
+                        "sqs:GetQueueAttributes",
+                        "sqs:ReceiveMessage",
+                        "sqs:ListQueues",
+                        "sqs:GetQueueUrl",
+                        "sqs:SendMessage",
+                    ],
+                    Resource: "*",
+                },
+                {
+                    Sid: "CloudWatchMetricsRead",
+                    Effect: "Allow",
+                    Action: [
+                        "cloudwatch:GetMetricData",
+                        "cloudwatch:GetMetricStatistics",
+                        "cloudwatch:ListMetrics",
+                    ],
+                    Resource: "*",
+                },
+                {
+                    Sid: "DynamoDBAccess",
+                    Effect: "Allow",
+                    Action: [
+                        "dynamodb:GetItem",
+                        "dynamodb:Query",
+                        "dynamodb:Scan",
+                        "dynamodb:DescribeTable",
+                        "dynamodb:PutItem",
+                        "dynamodb:UpdateItem",
+                    ],
+                    Resource: "*",
+                },
+                {
+                    Sid: "SESTestEmailAccess",
+                    Effect: "Allow",
+                    Action: [
+                        "ses:SendEmail",
+                        "ses:SendRawEmail",
+                    ],
+                    Resource: "*",
+                },
+            ],
+        }),
+    });
+
+    return {
+        role: apiLambdaRole,
+        policy: apiLambdaPolicy,
+    };
+}

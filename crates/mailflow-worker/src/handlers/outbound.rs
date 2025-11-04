@@ -1,12 +1,12 @@
-/// Outbound email handler - processes SQS events
-use crate::email::composer::{EmailComposer, LettreEmailComposer};
-use crate::error::MailflowError;
 use crate::handlers::common::send_error_to_dlq;
-use crate::models::{OutboundMessage, SqsEvent};
-use crate::services::idempotency::{DynamoDbIdempotencyService, IdempotencyService};
-use crate::services::metrics::{CloudWatchMetricsService, MetricsService};
-use crate::services::ses::{EmailSender, SesEmailSender};
-use crate::services::sqs::{QueueService, SqsQueueService};
+/// Outbound email handler - processes SQS events
+use mailflow_core::email::composer::{EmailComposer, LettreEmailComposer};
+use mailflow_core::error::MailflowError;
+use mailflow_core::models::{OutboundMessage, SqsEvent};
+use mailflow_core::services::idempotency::{DynamoDbIdempotencyService, IdempotencyService};
+use mailflow_core::services::metrics::{CloudWatchMetricsService, MetricsService};
+use mailflow_core::services::ses::{EmailSender, SesEmailSender};
+use mailflow_core::services::sqs::{QueueService, SqsQueueService};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tracing::{error, info, warn};
@@ -246,8 +246,10 @@ fn validate_outbound_message(message: &OutboundMessage) -> Result<(), MailflowEr
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::{EmailAddress, EmailBody, EmailHeaders, OutboundEmail, SendOptions};
     use chrono::Utc;
+    use mailflow_core::models::{
+        EmailAddress, EmailBody, EmailHeaders, OutboundEmail, SendOptions,
+    };
 
     #[test]
     fn test_validate_outbound_message() {

@@ -37,21 +37,49 @@ fmt-fix:
 check: fmt lint test
 	@echo "All checks passed!"
 
-# Build for AWS Lambda (ARM64)
+# Build for AWS Lambda (ARM64) - both worker and API
 lambda:
-	@echo "Building for AWS Lambda (ARM64)..."
-	@cargo lambda build --release --arm64 --output-format zip --lambda-dir target/lambda
-	@echo "Copying Lambda binary to infra/assets..."
-	@mkdir -p infra/assets
-	@cp target/lambda/mailflow/bootstrap.zip infra/assets/
+	@echo "Building Mailflow Lambda functions for ARM64..."
+	@echo ""
+	@echo "📦 Building mailflow-worker..."
+	@cargo build --release --package mailflow-worker --target aarch64-unknown-linux-gnu
+	@echo ""
+	@echo "📦 Building mailflow-api..."
+	@cargo build --release --package mailflow-api --target aarch64-unknown-linux-gnu
+	@echo ""
+	@echo "📦 Packaging Lambda functions..."
+	@mkdir -p assets
+	@cp ~/.target/aarch64-unknown-linux-gnu/release/bootstrap assets/bootstrap
+	@cd assets && zip -j bootstrap.zip bootstrap && rm bootstrap
+	@cp ~/.target/aarch64-unknown-linux-gnu/release/bootstrap assets/api-bootstrap
+	@cd assets && zip -j api-bootstrap.zip api-bootstrap && rm api-bootstrap
+	@echo ""
+	@echo "✅ Lambda functions packaged:"
+	@ls -lh assets/*.zip
+	@echo ""
+	@echo "To deploy: cd infra && pulumi up"
 
-# Build for AWS Lambda (x86_64)
+# Build for AWS Lambda (x86_64) - both worker and API
 lambda-x86:
-	@echo "Building for AWS Lambda (x86_64)..."
-	@cargo lambda build --release --x86-64 --output-format zip --lambda-dir target/lambda
-	@echo "Copying Lambda binary to infra/assets..."
-	@mkdir -p infra/assets
-	@cp target/lambda/mailflow/bootstrap.zip infra/assets/
+	@echo "Building Mailflow Lambda functions for x86_64..."
+	@echo ""
+	@echo "📦 Building mailflow-worker..."
+	@cargo build --release --package mailflow-worker --target x86_64-unknown-linux-gnu
+	@echo ""
+	@echo "📦 Building mailflow-api..."
+	@cargo build --release --package mailflow-api --target x86_64-unknown-linux-gnu
+	@echo ""
+	@echo "📦 Packaging Lambda functions..."
+	@mkdir -p assets
+	@cp ~/.target/x86_64-unknown-linux-gnu/release/bootstrap assets/bootstrap
+	@cd assets && zip -j bootstrap.zip bootstrap && rm bootstrap
+	@cp ~/.target/x86_64-unknown-linux-gnu/release/bootstrap assets/api-bootstrap
+	@cd assets && zip -j api-bootstrap.zip api-bootstrap && rm api-bootstrap
+	@echo ""
+	@echo "✅ Lambda functions packaged:"
+	@ls -lh assets/*.zip
+	@echo ""
+	@echo "To deploy: cd infra && pulumi up"
 
 # Deploy infrastructure with Pulumi
 deploy-infra:
@@ -62,7 +90,7 @@ deploy-infra:
 clean:
 	@echo "Cleaning..."
 	@cargo clean
-	@rm -rf target/
+	@rm -rf assets/*.zip
 
 # Run cargo audit for security vulnerabilities
 audit:
@@ -139,7 +167,8 @@ help:
 	@echo "  check          - Run all checks (fmt, lint, test)"
 	@echo ""
 	@echo "Deployment:"
-	@echo "  lambda			    - Build for AWS Lambda"
+	@echo "  lambda         - Build Lambda functions (worker + API) for ARM64"
+	@echo "  lambda-x86     - Build Lambda functions for x86_64"
 	@echo "  deploy-infra   - Deploy infrastructure with Pulumi"
 	@echo ""
 	@echo "E2E Testing:"

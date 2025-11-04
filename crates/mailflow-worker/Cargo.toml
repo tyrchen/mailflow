@@ -1,0 +1,73 @@
+[package]
+name = "mailflow-worker"
+description = "Email processing Lambda for Mailflow system"
+readme = "README.md"
+categories = ["email", "web-programming"]
+keywords = ["email", "aws", "lambda", "ses", "sqs"]
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+documentation.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[[bin]]
+name = "bootstrap"
+path = "src/main.rs"
+
+[dependencies]
+# Local dependencies
+mailflow-core = { path = "../mailflow-core" }
+
+# AWS SDK
+aws-config = { workspace = true }
+aws-sdk-s3 = { workspace = true }
+aws-sdk-ses = { workspace = true }
+aws-sdk-sqs = { workspace = true }
+aws-sdk-cloudwatch = { workspace = true }
+aws-sdk-dynamodb = { workspace = true }
+aws-smithy-types = { workspace = true }
+
+# Lambda Runtime
+lambda_runtime = { workspace = true }
+tokio = { workspace = true }
+
+# Email Processing
+mail-parser = { workspace = true }
+lettre = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error Handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging and Tracing
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# Utilities
+chrono = { workspace = true }
+regex = { workspace = true }
+bytes = { workspace = true }
+mime = { workspace = true }
+base64 = { workspace = true }
+url = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+lazy_static = { workspace = true }
+rand = { workspace = true }
+uuid = { workspace = true }
+ammonia = { workspace = true }
+typed-builder = { workspace = true }
+md-5 = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.13"
+wiremock = "0.6"

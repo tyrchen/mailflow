@@ -4,9 +4,8 @@ pub mod inbound;
 pub mod outbound;
 pub mod ses;
 
-use crate::error::MailflowError;
-use crate::models::LambdaEvent;
 use lambda_runtime::{Error, LambdaEvent as RuntimeEvent};
+use mailflow_core::{error::MailflowError, models::LambdaEvent};
 use serde_json::Value;
 use tracing::{error, info};
 

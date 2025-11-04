@@ -77,3 +77,21 @@ read existing rust code carefully, based on @specs/0005-integration-and-e2e-test
 
 now implement all python e2e tests based on @specs/0005-integration-and-e2e-test-plan.md. Make sure you use uv and add targets to run e2e test in
 @Makefile. Once you finished one e2e run and make sure it work as expected before working on next one
+
+## A new lambda function for the UI dashboard
+
+based on @specs/0001-spec.md and @specs/reviews/0001-system-review.md and existing code make sure you understand the existing work, think ultra hard and properly design a dashboard that admin could use to manage the system:
+
+- look at the system status, including basic metrics and charts
+- see the detailed logs from different resources and inspect data in the queues
+- send test emails to the system to verify the system is working as expected
+
+Feel free to add anything you feel important to the PRD, but keep this dashboard focused, no need to consider monitor/alerting, as those should be processed via otel and a different dashboard (e.g. datadog). For the system design, consider the following:
+
+- move the code base to a multi-crate one, with the new lambda function for UI dashboard in a separate crate. For common code, use a shared crate.
+- the new lambda function for UI dashboard should handle all API related work, use Tokio/Axum/aws sdk to build it. Use jwt to protect the API endpoints. Infra code shall pass a JWKS envar to the lambda function, containing the JWKS json data. The jwks file is in ./infra/.jwks.json (gitignored).
+- the UI dashboard should be built with refine/antd/tailwindcss/typescript/vite/react. It should build assets and deploy to a s3 bucket and use cloudfront to serve it.
+
+The design should focus on high level interfaces and data flow, no need to consider the implementation details.
+
+Write a detailed PRD, design spec and implementation plan in @specs/0007-dashboard.md.

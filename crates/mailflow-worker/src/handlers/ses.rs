@@ -1,12 +1,14 @@
-use crate::error::MailflowError;
 use crate::handlers::common::send_error_to_dlq;
 use crate::handlers::inbound::InboundContext;
-use crate::models::{SesEvent, SesEventRecord};
-use crate::services::attachments::{AttachmentConfig, AttachmentProcessor, S3AttachmentProcessor};
-use crate::services::metrics::{CloudWatchMetricsService, Metrics};
-use crate::services::security::SecurityValidator;
-use crate::utils::logging::{redact_email, redact_subject};
-use crate::utils::retry::retry_default;
+use mailflow_core::error::MailflowError;
+use mailflow_core::models::{SesEvent, SesEventRecord};
+use mailflow_core::services::attachments::{
+    AttachmentConfig, AttachmentProcessor, S3AttachmentProcessor,
+};
+use mailflow_core::services::metrics::{CloudWatchMetricsService, Metrics};
+use mailflow_core::services::security::SecurityValidator;
+use mailflow_core::utils::logging::{redact_email, redact_subject};
+use mailflow_core::utils::retry::retry_default;
 use std::sync::Arc;
 use std::time::Instant;
 use tracing::{error, info};

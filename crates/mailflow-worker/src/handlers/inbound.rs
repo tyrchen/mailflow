@@ -1,17 +1,19 @@
-/// Inbound email handler - processes S3 events from SES
-use crate::constants::{MAX_EMAIL_SIZE_BYTES, MESSAGE_ID_PREFIX, MESSAGE_VERSION, SOURCE_NAME};
-use crate::email::parser::{EmailParser, MailParserEmailParser};
-use crate::error::MailflowError;
 use crate::handlers::common::send_error_to_dlq;
-use crate::models::{InboundEmail, InboundMessage, MessageMetadata, S3Event};
-use crate::routing::engine::{MailflowRouter, Router};
-use crate::services::config::{ConfigProvider, EnvConfigProvider};
-use crate::services::metrics::{CloudWatchMetricsService, MetricsService};
-use crate::services::rate_limiter::{MockRateLimiter, RateLimiter};
-use crate::services::s3::{S3StorageService, StorageService};
-use crate::services::sqs::{QueueService, SqsQueueService};
-use crate::utils::logging::{redact_email, redact_subject};
 use chrono::Utc;
+/// Inbound email handler - processes S3 events from SES
+use mailflow_core::constants::{
+    MAX_EMAIL_SIZE_BYTES, MESSAGE_ID_PREFIX, MESSAGE_VERSION, SOURCE_NAME,
+};
+use mailflow_core::email::parser::{EmailParser, MailParserEmailParser};
+use mailflow_core::error::MailflowError;
+use mailflow_core::models::{InboundEmail, InboundMessage, MessageMetadata, S3Event};
+use mailflow_core::routing::engine::{MailflowRouter, Router};
+use mailflow_core::services::config::{ConfigProvider, EnvConfigProvider};
+use mailflow_core::services::metrics::{CloudWatchMetricsService, MetricsService};
+use mailflow_core::services::rate_limiter::{MockRateLimiter, RateLimiter};
+use mailflow_core::services::s3::{S3StorageService, StorageService};
+use mailflow_core::services::sqs::{QueueService, SqsQueueService};
+use mailflow_core::utils::logging::{redact_email, redact_subject};
 use std::sync::Arc;
 use std::time::Instant;
 use tracing::{error, info};
@@ -257,7 +259,7 @@ mod tests {
 
     #[test]
     fn test_build_inbound_message() {
-        use crate::models::{EmailAddress, EmailBody, EmailHeaders};
+        use mailflow_core::models::{EmailAddress, EmailBody, EmailHeaders};
 
         let email = crate::models::Email {
             message_id: "test-123".to_string(),

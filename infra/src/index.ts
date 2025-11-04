@@ -2,10 +2,12 @@ import * as pulumi from "@pulumi/pulumi";
 import { createStorage } from "./storage";
 import { createQueues } from "./queues";
 import { createDatabaseTables } from "./database";
-import { createLambdaRole } from "./iam";
-import { createLambdaFunction } from "./lambda";
+import { createLambdaRole, createApiLambdaRole } from "./iam";
+import { createLambdaFunction, createApiLambda } from "./lambda";
 import { createSesConfiguration } from "./ses";
 import { createMonitoring } from "./monitoring";
+import { createApiGateway } from "./api";
+import { createDashboard } from "./dashboard";
 
 // Load configuration
 const config = new pulumi.Config();
@@ -13,6 +15,7 @@ const environment = config.require("environment");
 const domains = config.requireObject<string[]>("domains");
 const apps = config.requireObject<string[]>("apps");
 const allowedSenderDomains = config.getObject<string[]>("allowedSenderDomains") || [];
+const jwtIssuer = config.get("jwtIssuer") || "mailflow";
 
 console.log(`Deploying Mailflow infrastructure for environment: ${environment}`);
 console.log(`Apps: ${apps.join(", ")}`);
@@ -29,6 +32,7 @@ const queues = createQueues(environment, apps);
 
 // 3. Create DynamoDB tables
 const database = createDatabaseTables(environment);
+export const testHistoryTableName = database.testHistoryTable.name;
 
 // 4. Create IAM role for Lambda
 const allQueueArns = [
@@ -76,6 +80,29 @@ const monitoring = createMonitoring({
     environment,
 });
 
+// 8. Create API Lambda for dashboard
+const apiIam = createApiLambdaRole(environment);
+const apiLambda = createApiLambda({
+    role: apiIam.role,
+    environment,
+    jwtIssuer,
+    outboundQueueUrl: queues.outboundQueue.url,
+    testHistoryTableName: database.testHistoryTable.name,
+    allowedDomains: domains,
+});
+
+// 9. Create API Gateway
+const api = createApiGateway({
+    apiLambda: apiLambda.function,
+    environment,
+});
+
+// 10. Create Dashboard (S3 + CloudFront)
+const dashboard = createDashboard({
+    apiUrl: api.apiUrl,
+    environment,
+});
+
 // Exports
 export const lambdaFunctionName = lambda.function.name;
 export const lambdaFunctionArn = lambda.function.arn;
@@ -99,6 +126,12 @@ export const appQueueUrls = pulumi.output(
 // Export app queue names for easy reference
 export const appQueueNames = Object.keys(queues.appQueues);
 
+// Dashboard exports
+export const apiLambdaName = apiLambda.function.name;
+export const apiUrl = pulumi.interpolate`https://${api.apiUrl}`;
+export const dashboardUrl = pulumi.interpolate`https://${dashboard.dashboardUrl}`;
+export const dashboardBucketName = dashboard.bucket.bucket;
+
 // Summary
 export const summary = pulumi.interpolate`
 Mailflow Infrastructure Deployed Successfully!
@@ -107,13 +140,22 @@ Environment: ${environment}
 Apps: ${appQueueNames.join(", ")}
 Domains: ${domains.join(", ")}
 
-Lambda Function: ${lambda.function.name}
+Worker Lambda: ${lambda.function.name}
+API Lambda: ${apiLambda.function.name}
 Raw Emails Bucket: ${storage.bucket.bucket}
 Outbound Queue: ${queues.outboundQueue.name}
+
+Dashboard URL: https://${dashboard.dashboardUrl}
+API URL: https://${api.apiUrl}
 
 To send test email:
   aws ses send-email --from test@${domains[0]} --destination ToAddresses=_${appQueueNames[0]}@${domains[0]} --message "Subject={Data=Test},Body={Text={Data=Hello}}"
 
 To check app queue:
   aws sqs receive-message --queue-url <queue-url>
+
+To access dashboard:
+  1. Open https://${dashboard.dashboardUrl}
+  2. Get JWT token from your identity provider
+  3. Set Authorization header: Bearer <token>
 `;

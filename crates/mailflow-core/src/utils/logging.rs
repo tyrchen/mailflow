@@ -13,7 +13,7 @@ static EMAIL_PATTERN: LazyLock<Regex> =
 ///
 /// # Examples
 /// ```
-/// use mailflow::utils::logging::redact_email;
+/// use mailflow_core::utils::logging::redact_email;
 ///
 /// assert_eq!(redact_email("user@example.com"), "***@example.com");
 /// assert_eq!(redact_email("Contact: test@acme.com for help"), "Contact: ***@acme.com for help");
@@ -44,7 +44,7 @@ pub fn redact_email_full(text: &str) -> String {
 ///
 /// # Examples
 /// ```
-/// use mailflow::utils::logging::redact_subject;
+/// use mailflow_core::utils::logging::redact_subject;
 ///
 /// assert_eq!(redact_subject("Confidential Document"), "Con...[21 chars]");
 /// assert_eq!(redact_subject("Hi"), "Hi");

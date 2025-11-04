@@ -1,5 +1,5 @@
 use lambda_runtime::{Error, run, service_fn};
-use mailflow::handler;
+use mailflow_worker::handler;
 use tracing::info;
 
 #[tokio::main]
