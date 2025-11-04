@@ -5,6 +5,7 @@ pub mod api;
 pub mod auth;
 pub mod context;
 pub mod error;
+pub mod middleware;
 
 pub use context::ApiContext;
 pub use error::ApiError;
@@ -13,7 +14,7 @@ use axum::{
     Router,
     body::Body as AxumBody,
     http::{HeaderValue, Method, header},
-    middleware,
+    middleware as axum_middleware,
     routing::{get, post},
 };
 use lambda_http::{Body, Error as LambdaError, Request, Response};
@@ -54,7 +55,7 @@ pub async fn handler(ctx: Arc<ApiContext>, event: Request) -> Result<Response<Bo
         // Config endpoint
         .route("/api/config", get(api::config::get_config))
         // Apply JWT authentication middleware to all protected routes
-        .route_layer(middleware::from_fn_with_state(
+        .route_layer(axum_middleware::from_fn_with_state(
             Arc::clone(&ctx),
             auth::auth_middleware,
         ));
@@ -65,6 +66,15 @@ pub async fn handler(ctx: Arc<ApiContext>, event: Request) -> Result<Response<Bo
         .route("/api/health", get(api::health::handler))
         // Merge protected routes
         .merge(protected)
+        // Add observability middleware (logging + metrics)
+        .route_layer(axum_middleware::from_fn_with_state(
+            Arc::clone(&ctx),
+            middleware::logging_middleware,
+        ))
+        .route_layer(axum_middleware::from_fn_with_state(
+            Arc::clone(&ctx),
+            middleware::metrics_middleware,
+        ))
         // Add CORS middleware with restricted origin
         .layer(
             CorsLayer::new()

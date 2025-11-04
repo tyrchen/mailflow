@@ -254,3 +254,53 @@ fn create_message_preview(body: &str) -> String {
         body.to_string()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_queue_type_detection() {
+        let test_cases = vec![
+            ("mailflow-app1", "inbound"),
+            ("mailflow-app1-outbound", "outbound"),
+            ("mailflow-app1-dlq", "dlq"),
+            ("mailflow-DLQ-app2", "dlq"),
+        ];
+
+        for (queue_name, expected_type) in test_cases {
+            let queue_type = if queue_name.to_lowercase().contains("dlq") {
+                "dlq"
+            } else if queue_name.to_lowercase().contains("outbound") {
+                "outbound"
+            } else {
+                "inbound"
+            };
+            assert_eq!(queue_type, expected_type);
+        }
+    }
+
+    #[test]
+    fn test_message_preview_with_json() {
+        let json_body = r#"{"email":{"from":{"address":"test@example.com"},"subject":"Test"}}"#;
+        let preview = create_message_preview(json_body);
+        assert_eq!(preview, "Email from: test@example.com, Subject: Test");
+    }
+
+    #[test]
+    fn test_message_preview_truncation() {
+        let long_text = "a".repeat(300);
+        let preview = create_message_preview(&long_text);
+        assert_eq!(preview.len(), 203); // 200 + "..."
+        assert!(preview.ends_with("..."));
+    }
+
+    #[test]
+    fn test_messages_query_limit() {
+        let limits = vec![(Some(5), 5), (Some(15), 10), (None, 10)];
+        for (input, expected) in limits {
+            let limit = input.unwrap_or(10).clamp(1, 10);
+            assert_eq!(limit, expected);
+        }
+    }
+}

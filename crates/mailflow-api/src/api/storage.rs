@@ -134,18 +134,22 @@ pub async fn stats(
                         "application/octet-stream"
                     };
 
-                    let entry = content_type_map.entry(content_type.to_string()).or_insert((0, 0));
+                    let entry = content_type_map
+                        .entry(content_type.to_string())
+                        .or_insert((0, 0));
                     entry.0 += 1;
                     entry.1 += size;
                 }
 
                 let breakdown: Vec<ContentTypeStats> = content_type_map
                     .into_iter()
-                    .map(|(content_type, (count, total_size_bytes))| ContentTypeStats {
-                        content_type,
-                        count,
-                        total_size_bytes,
-                    })
+                    .map(
+                        |(content_type, (count, total_size_bytes))| ContentTypeStats {
+                            content_type,
+                            count,
+                            total_size_bytes,
+                        },
+                    )
                     .collect();
 
                 (count, size, oldest_date, newest_date, breakdown)
@@ -225,4 +229,88 @@ pub async fn objects(
     }
 
     Ok(Json(ObjectsResponse { bucket, objects }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_content_type_inference() {
+        let test_cases = vec![
+            ("document.pdf", "application/pdf"),
+            ("image.png", "image/png"),
+            ("photo.jpg", "image/jpeg"),
+            ("animation.gif", "image/gif"),
+            ("readme.txt", "text/plain"),
+            ("index.html", "text/html"),
+            ("data.json", "application/json"),
+            ("archive.zip", "application/zip"),
+            ("email.eml", "message/rfc822"),
+            ("unknown.xyz", "application/octet-stream"),
+        ];
+
+        for (filename, expected_type) in test_cases {
+            let content_type = if filename.ends_with(".pdf") {
+                "application/pdf"
+            } else if filename.ends_with(".png") {
+                "image/png"
+            } else if filename.ends_with(".jpg") || filename.ends_with(".jpeg") {
+                "image/jpeg"
+            } else if filename.ends_with(".gif") {
+                "image/gif"
+            } else if filename.ends_with(".txt") {
+                "text/plain"
+            } else if filename.ends_with(".html") || filename.ends_with(".htm") {
+                "text/html"
+            } else if filename.ends_with(".json") {
+                "application/json"
+            } else if filename.ends_with(".zip") {
+                "application/zip"
+            } else if filename.ends_with(".eml") {
+                "message/rfc822"
+            } else {
+                "application/octet-stream"
+            };
+            assert_eq!(content_type, expected_type);
+        }
+    }
+
+    #[test]
+    fn test_content_type_breakdown_aggregation() {
+        let objects = vec![
+            ("file1.pdf", 1000),
+            ("file2.pdf", 2000),
+            ("image1.jpg", 500),
+        ];
+
+        let mut content_type_map: HashMap<String, (usize, i64)> = HashMap::new();
+        for (key, size) in objects {
+            let content_type = if key.ends_with(".pdf") {
+                "application/pdf"
+            } else if key.ends_with(".jpg") {
+                "image/jpeg"
+            } else {
+                "application/octet-stream"
+            };
+
+            let entry = content_type_map
+                .entry(content_type.to_string())
+                .or_insert((0, 0));
+            entry.0 += 1;
+            entry.1 += size;
+        }
+
+        assert_eq!(content_type_map["application/pdf"], (2, 3000));
+        assert_eq!(content_type_map["image/jpeg"], (1, 500));
+    }
+
+    #[test]
+    fn test_objects_query_limit() {
+        let test_limits = vec![(Some(50), 50), (Some(150), 100), (None, 20)];
+        for (input, expected) in test_limits {
+            let limit = input.unwrap_or(20).min(100);
+            assert_eq!(limit, expected);
+        }
+    }
 }

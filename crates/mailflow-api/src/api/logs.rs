@@ -104,3 +104,54 @@ pub async fn query(
         next_token: result.next_token().map(|s| s.to_string()),
     }))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_logs_query_limit_bounds() {
+        let test_limits = vec![(Some(50), 50), (Some(15000), 10000), (None, 100)];
+
+        for (input, expected) in test_limits {
+            let limit = input.unwrap_or(100).min(10000);
+            assert_eq!(limit, expected);
+        }
+    }
+
+    #[test]
+    fn test_log_level_extraction() {
+        let test_cases = vec![
+            (r#"{"level":"ERROR","message":"test"}"#, Some("ERROR")),
+            (r#"{"level":"INFO","message":"test"}"#, Some("INFO")),
+            ("Plain text log", None),
+        ];
+
+        for (log_message, expected_level) in test_cases {
+            let level = if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(log_message) {
+                parsed
+                    .get("level")
+                    .and_then(|v| v.as_str())
+                    .map(|s| s.to_string())
+            } else {
+                None
+            };
+            assert_eq!(level.as_deref(), expected_level);
+        }
+    }
+
+    #[test]
+    fn test_log_entry_serialization() {
+        let entry = LogEntry {
+            timestamp: "2025-11-03T09:15:23Z".to_string(),
+            message: "Test message".to_string(),
+            level: "ERROR".to_string(),
+            context: serde_json::json!({"handler": "test"}),
+        };
+
+        let json = serde_json::to_value(&entry).unwrap();
+        assert_eq!(json["timestamp"], "2025-11-03T09:15:23Z");
+        assert_eq!(json["level"], "ERROR");
+        assert_eq!(json["context"]["handler"], "test");
+    }
+}

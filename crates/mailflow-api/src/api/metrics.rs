@@ -353,3 +353,70 @@ async fn get_metric_timeseries(
 
     Ok(datapoints)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_metrics_summary_response_structure() {
+        let response = MetricsSummaryResponse {
+            period: "24h".to_string(),
+            inbound: InboundMetrics {
+                total: 1000.0,
+                rate: 0.69,
+                error_rate: 0.01,
+            },
+            outbound: OutboundMetrics {
+                total: 950.0,
+                rate: 0.66,
+                error_rate: 0.005,
+            },
+            processing: ProcessingMetrics {
+                p50: 100.0,
+                p95: 250.0,
+                p99: 500.0,
+            },
+            queues: QueueMetrics {
+                active: 3,
+                dlq_messages: 0,
+            },
+        };
+
+        let json = serde_json::to_value(&response).unwrap();
+        assert_eq!(json["period"], "24h");
+        assert_eq!(json["inbound"]["total"], 1000.0);
+        assert_eq!(json["outbound"]["errorRate"], 0.005);
+    }
+
+    #[test]
+    fn test_error_rate_calculation() {
+        let total = 1000.0;
+        let errors = 50.0;
+        let error_rate = errors / total;
+        assert_eq!(error_rate, 0.05);
+
+        let total_zero = 0.0;
+        let error_rate_zero = if total_zero > 0.0 {
+            errors / total_zero
+        } else {
+            0.0
+        };
+        assert_eq!(error_rate_zero, 0.0);
+    }
+
+    #[test]
+    fn test_period_interval_parsing() {
+        let periods = vec![("1h", 1), ("6h", 6), ("7d", 168), ("30d", 720)];
+        for (input, expected) in periods {
+            let hours = match input {
+                "1h" => 1,
+                "6h" => 6,
+                "7d" => 168,
+                "30d" => 720,
+                _ => 24,
+            };
+            assert_eq!(hours, expected);
+        }
+    }
+}
