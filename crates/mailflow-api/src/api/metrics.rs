@@ -148,19 +148,16 @@ pub async fn summary(
             .send()
             .await;
 
-        if let Ok(response) = attrs {
-            if let Some(attributes) = response.attributes() {
-                if let Some(count_str) = attributes
-                    .get(&aws_sdk_sqs::types::QueueAttributeName::ApproximateNumberOfMessages)
-                {
-                    if let Ok(count) = count_str.parse::<i32>() {
-                        if is_dlq {
-                            dlq_message_count += count;
-                        } else if count > 0 {
-                            active_count += 1;
-                        }
-                    }
-                }
+        if let Ok(response) = attrs
+            && let Some(attributes) = response.attributes()
+            && let Some(count_str) =
+                attributes.get(&aws_sdk_sqs::types::QueueAttributeName::ApproximateNumberOfMessages)
+            && let Ok(count) = count_str.parse::<i32>()
+        {
+            if is_dlq {
+                dlq_message_count += count;
+            } else if count > 0 {
+                active_count += 1;
             }
         }
     }

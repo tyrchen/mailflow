@@ -11,10 +11,10 @@
 mod common;
 
 use common::load_attachment_fixture;
-use mailflow::constants::MAX_EMAIL_SIZE_BYTES;
-use mailflow::utils::file_validation::{is_extension_blocked, validate_file_type};
-use mailflow::utils::logging::{redact_email, redact_subject};
-use mailflow::utils::validation::validate_email_address;
+use mailflow_worker::constants::MAX_EMAIL_SIZE_BYTES;
+use mailflow_worker::utils::file_validation::{is_extension_blocked, validate_file_type};
+use mailflow_worker::utils::logging::{redact_email, redact_subject};
+use mailflow_worker::utils::validation::validate_email_address;
 
 // Use the strict sanitization function which is available
 fn sanitize_filename(name: &str) -> String {
@@ -251,8 +251,10 @@ fn int_021_unverified_sender() {
 /// Validates: Routing to missing queue detection (FR-1.12)
 #[test]
 fn int_022_non_existent_queue() {
-    use mailflow::models::{AttachmentConfig, MailflowConfig, RetentionConfig, SecurityConfig};
-    use mailflow::routing::resolver::QueueResolver;
+    use mailflow_worker::models::{
+        AttachmentConfig, MailflowConfig, RetentionConfig, SecurityConfig,
+    };
+    use mailflow_worker::routing::resolver::QueueResolver;
     use std::collections::HashMap;
 
     let config = MailflowConfig {

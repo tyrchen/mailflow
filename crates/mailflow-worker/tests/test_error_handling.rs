@@ -9,10 +9,12 @@
 mod common;
 
 use chrono::Utc;
-use mailflow::email::parser::{EmailParser, MailParserEmailParser};
-use mailflow::error::MailflowError;
-use mailflow::models::{EmailAddress, EmailBody, OutboundEmail, OutboundMessage, SendOptions};
-use mailflow::utils::validation::validate_email_address;
+use mailflow_worker::email::parser::{EmailParser, MailParserEmailParser};
+use mailflow_worker::error::MailflowError;
+use mailflow_worker::models::{
+    EmailAddress, EmailBody, OutboundEmail, OutboundMessage, SendOptions,
+};
+use mailflow_worker::utils::validation::validate_email_address;
 
 // Helper function to validate outbound message (mirrors internal validation logic)
 fn validate_outbound_message(message: &OutboundMessage) -> Result<(), MailflowError> {

@@ -10,15 +10,15 @@
 mod common;
 
 use common::{load_attachment_fixture, load_email_fixture, test_data};
-use mailflow::email::parser::{EmailParser, MailParserEmailParser};
-use mailflow::handlers::inbound::build_inbound_message;
-use mailflow::models::{
+use mailflow_worker::email::parser::{EmailParser, MailParserEmailParser};
+use mailflow_worker::handlers::inbound::build_inbound_message;
+use mailflow_worker::models::{
     AppRouting, AttachmentConfig, MailflowConfig, RetentionConfig, SecurityConfig,
 };
-use mailflow::models::{Email, EmailAddress};
-use mailflow::routing::engine::{MailflowRouter, Router};
-use mailflow::routing::extract_app_name;
-use mailflow::utils::file_validation::{is_extension_blocked, validate_file_type};
+use mailflow_worker::models::{Email, EmailAddress};
+use mailflow_worker::routing::engine::{MailflowRouter, Router};
+use mailflow_worker::routing::extract_app_name;
+use mailflow_worker::utils::file_validation::{is_extension_blocked, validate_file_type};
 use std::collections::HashMap;
 
 /// Helper to create test config for routing tests
@@ -384,7 +384,7 @@ async fn int_008_email_threading() {
 #[test]
 fn test_build_inbound_message() {
     use chrono::Utc;
-    use mailflow::models::{EmailBody, EmailHeaders};
+    use mailflow_worker::models::{EmailBody, EmailHeaders};
 
     let email = Email {
         message_id: "test-123".to_string(),

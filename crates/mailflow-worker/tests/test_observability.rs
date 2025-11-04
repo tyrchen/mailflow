@@ -7,9 +7,9 @@
 #[path = "common/mod.rs"]
 mod common;
 
-use mailflow::constants::{MESSAGE_ID_PREFIX, MESSAGE_VERSION, SOURCE_NAME};
-use mailflow::services::metrics::MetricUnit;
-use mailflow::utils::logging::{redact_email, redact_subject};
+use mailflow_worker::constants::{MESSAGE_ID_PREFIX, MESSAGE_VERSION, SOURCE_NAME};
+use mailflow_worker::services::metrics::MetricUnit;
+use mailflow_worker::utils::logging::{redact_email, redact_subject};
 
 /// INT-028: Metrics emission
 /// Validates: CloudWatch metrics structure (NFR-5.2)

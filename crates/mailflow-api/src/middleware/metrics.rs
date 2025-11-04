@@ -64,8 +64,8 @@ pub async fn metrics_middleware(
     }
 
     // Emit error count metric if request failed
-    if status.is_client_error() || status.is_server_error() {
-        if let Err(e) = emit_metric(
+    if (status.is_client_error() || status.is_server_error())
+        && let Err(e) = emit_metric(
             &ctx,
             "ErrorCount",
             1.0,
@@ -73,9 +73,8 @@ pub async fn metrics_middleware(
             status.as_u16().to_string(),
         )
         .await
-        {
-            error!("Failed to emit ErrorCount metric: {}", e);
-        }
+    {
+        error!("Failed to emit ErrorCount metric: {}", e);
     }
 
     response
