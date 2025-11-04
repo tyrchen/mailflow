@@ -114,7 +114,6 @@ export function createApiGateway(config: ApiGatewayConfig) {
         `api-deployment-${environment}`,
         {
             restApi: api.id,
-            stageName: "", // Stage name set in stage resource
         },
         {
             dependsOn: [integration, optionsIntegration],

@@ -9,13 +9,31 @@ export interface DashboardConfig {
 export function createDashboard(config: DashboardConfig) {
     const { apiUrl, environment } = config;
 
+    // Get current AWS account ID
+    const caller = aws.getCallerIdentity({});
+
     // 1. S3 Bucket for dashboard static assets
     const bucket = new aws.s3.Bucket(`mailflow-dashboard-${environment}`, {
         bucket: `mailflow-dashboard-${environment}`,
-        website: {
-            indexDocument: "index.html",
-            errorDocument: "index.html", // SPA routing
-        },
+    });
+
+    // 2. S3 Bucket Website Configuration
+    const bucketWebsite = new aws.s3.BucketWebsiteConfiguration(
+        `dashboard-website-${environment}`,
+        {
+            bucket: bucket.id,
+            indexDocument: {
+                suffix: "index.html",
+            },
+            errorDocument: {
+                key: "index.html", // SPA routing
+            },
+        }
+    );
+
+    // 3. S3 Bucket CORS Configuration
+    const bucketCors = new aws.s3.BucketCorsConfiguration(`dashboard-cors-${environment}`, {
+        bucket: bucket.id,
         corsRules: [
             {
                 allowedHeaders: ["*"],
@@ -27,7 +45,7 @@ export function createDashboard(config: DashboardConfig) {
         ],
     });
 
-    // 2. Block public access (CloudFront will access via OAI)
+    // 4. Block public access (CloudFront will access via OAI)
     const bucketPublicAccessBlock = new aws.s3.BucketPublicAccessBlock(
         `dashboard-public-access-block-${environment}`,
         {
@@ -39,19 +57,19 @@ export function createDashboard(config: DashboardConfig) {
         }
     );
 
-    // 3. CloudFront Origin Access Identity
+    // 5. CloudFront Origin Access Identity
     const oai = new aws.cloudfront.OriginAccessIdentity(`dashboard-oai-${environment}`, {
         comment: `OAI for mailflow-dashboard-${environment}`,
     });
 
-    // 4. Bucket policy to allow CloudFront OAI access
+    // 6. Bucket policy to allow CloudFront OAI access and developer role
     const bucketPolicy = new aws.s3.BucketPolicy(
         `dashboard-policy-${environment}`,
         {
             bucket: bucket.id,
             policy: pulumi
-                .all([bucket.arn, oai.iamArn])
-                .apply(([bucketArn, oaiArn]) =>
+                .all([bucket.arn, oai.iamArn, caller])
+                .apply(([bucketArn, oaiArn, callerInfo]) =>
                     JSON.stringify({
                         Version: "2012-10-17",
                         Statement: [
@@ -63,6 +81,24 @@ export function createDashboard(config: DashboardConfig) {
                                 Action: "s3:GetObject",
                                 Resource: `${bucketArn}/*`,
                             },
+                            {
+                                Effect: "Allow",
+                                Principal: {
+                                    AWS: `arn:aws:iam::${callerInfo.accountId}:root`,
+                                },
+                                Action: [
+                                    "s3:ListBucket",
+                                    "s3:GetObject",
+                                    "s3:PutObject",
+                                    "s3:DeleteObject",
+                                ],
+                                Resource: [bucketArn, `${bucketArn}/*`],
+                                Condition: {
+                                    StringLike: {
+                                        "aws:PrincipalArn": `arn:aws:iam::${callerInfo.accountId}:role/aws-reserved/sso.amazonaws.com/*`,
+                                    },
+                                },
+                            },
                         ],
                     })
                 ),
@@ -70,7 +106,7 @@ export function createDashboard(config: DashboardConfig) {
         { dependsOn: [bucketPublicAccessBlock] }
     );
 
-    // 5. CloudFront distribution
+    // 7. CloudFront distribution
     const cdn = new aws.cloudfront.Distribution(`dashboard-cdn-${environment}`, {
         enabled: true,
         comment: `Mailflow Dashboard ${environment}`,

@@ -13,59 +13,55 @@ pub use error::ApiError;
 use axum::{
     Router,
     body::Body as AxumBody,
-    http::{HeaderValue, Method, header},
+    http::{Method, header},
     middleware as axum_middleware,
     routing::{get, post},
 };
 use lambda_http::{Body, Error as LambdaError, Request, Response};
 use std::sync::Arc;
 use tower::ServiceExt;
-use tower_http::cors::CorsLayer;
+use tower_http::cors::{Any, CorsLayer};
 use tracing::{error, info};
 
 /// Main API handler - converts Lambda HTTP request to Axum router
 pub async fn handler(ctx: Arc<ApiContext>, event: Request) -> Result<Response<Body>, LambdaError> {
     info!("Processing API request: {} {}", event.method(), event.uri());
 
-    // Get allowed origin from environment or use default
-    let allowed_origin = std::env::var("ALLOWED_ORIGIN")
-        .unwrap_or_else(|_| "https://dashboard.example.com".to_string());
-
-    let origin = allowed_origin
-        .parse::<HeaderValue>()
-        .unwrap_or_else(|_| HeaderValue::from_static("https://dashboard.example.com"));
-
     // Build protected routes that require JWT authentication
     let protected = Router::new()
         // Metrics endpoints
-        .route("/api/metrics/summary", get(api::metrics::summary))
-        .route("/api/metrics/timeseries", get(api::metrics::timeseries))
+        .route("/metrics/summary", get(api::metrics::summary))
+        .route("/metrics/timeseries", get(api::metrics::timeseries))
         // Queue endpoints
-        .route("/api/queues", get(api::queues::list))
-        .route("/api/queues/:name/messages", get(api::queues::messages))
+        .route("/queues", get(api::queues::list))
+        .route("/queues/{name}/messages", get(api::queues::messages))
         // Logs endpoint
-        .route("/api/logs/query", post(api::logs::query))
+        .route("/logs/query", post(api::logs::query))
         // Storage endpoints
-        .route("/api/storage/stats", get(api::storage::stats))
-        .route("/api/storage/:bucket/objects", get(api::storage::objects))
+        .route("/storage/stats", get(api::storage::stats))
+        .route("/storage/{bucket}/objects", get(api::storage::objects))
         // Test email endpoints
-        .route("/api/test/inbound", post(api::test::inbound))
-        .route("/api/test/outbound", post(api::test::outbound))
-        .route("/api/test/history", get(api::test::history))
+        .route("/test/inbound", post(api::test::inbound))
+        .route("/test/outbound", post(api::test::outbound))
+        .route("/test/history", get(api::test::history))
         // Config endpoint
-        .route("/api/config", get(api::config::get_config))
+        .route("/config", get(api::config::get_config))
         // Apply JWT authentication middleware to all protected routes
         .route_layer(axum_middleware::from_fn_with_state(
             Arc::clone(&ctx),
             auth::auth_middleware,
         ));
 
-    // Build the main router with public and protected routes
-    let app = Router::new()
+    // Build API v1 router with public and protected routes
+    let v1_router = Router::new()
         // Health endpoint (no auth required)
-        .route("/api/health", get(api::health::handler))
+        .route("/health", get(api::health::handler))
         // Merge protected routes
-        .merge(protected)
+        .merge(protected);
+
+    // Build the main router with v1 nested
+    let app = Router::new()
+        .nest("/v1", v1_router)
         // Add observability middleware (logging + metrics)
         .route_layer(axum_middleware::from_fn_with_state(
             Arc::clone(&ctx),
@@ -75,13 +71,18 @@ pub async fn handler(ctx: Arc<ApiContext>, event: Request) -> Result<Response<Bo
             Arc::clone(&ctx),
             middleware::metrics_middleware,
         ))
-        // Add CORS middleware with restricted origin
+        // Add CORS middleware allowing all origins
         .layer(
             CorsLayer::new()
-                .allow_origin(origin)
-                .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
-                .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE])
-                .allow_credentials(true),
+                .allow_origin(Any)
+                .allow_methods([
+                    Method::GET,
+                    Method::POST,
+                    Method::PUT,
+                    Method::DELETE,
+                    Method::OPTIONS,
+                ])
+                .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]),
         )
         // Add API context
         .with_state(ctx);

@@ -42,7 +42,7 @@ export function createLambdaFunction(config: LambdaConfig) {
         timeout: 60,
         memorySize: 256,
         architectures: ["arm64"], // Use ARM64 for better cost efficiency
-        code: new pulumi.asset.FileArchive("../assets/bootstrap.zip"),
+        code: new pulumi.asset.FileArchive("../assets/mailflow-worker.zip"),
         environment: {
             variables: {
                 RUST_LOG: "info",
@@ -131,7 +131,7 @@ export function createApiLambda(config: ApiLambdaConfig) {
         timeout: 30,
         memorySize: 256,
         architectures: ["arm64"],
-        code: new pulumi.asset.FileArchive("../assets/api-bootstrap.zip"),
+        code: new pulumi.asset.FileArchive("../assets/mailflow-api.zip"),
         environment: {
             variables: pulumi
                 .all([outboundQueueUrl, testHistoryTableName])

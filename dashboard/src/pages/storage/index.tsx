@@ -17,7 +17,7 @@ export const StoragePage = () => {
   const [selectedBucketName, setSelectedBucketName] = useState<string>('');
 
   const firstBucket = buckets[0]?.name;
-  const currentBucket = buckets.find(b => b.name === (selectedBucketName || firstBucket)) || buckets[0];
+  const currentBucket = buckets.find((b: any) => b.name === (selectedBucketName || firstBucket)) || buckets[0];
 
   const bucketToQuery = selectedBucketName || firstBucket;
 
@@ -163,7 +163,7 @@ export const StoragePage = () => {
                         ))}
                       </Pie>
                       <Tooltip
-                        formatter={(value: any, name: any, props: any) => [
+                        formatter={(value: any, _name: any, props: any) => [
                           `${value} files (${(props.payload.size / 1024 / 1024).toFixed(2)} MB)`,
                           props.payload.name,
                         ]}

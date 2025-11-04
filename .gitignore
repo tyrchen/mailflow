@@ -1,7 +1,7 @@
 /target
 Cargo.lock
 .vscode
-assets/
+infra/assets/
 *jwks.json
 
 # Dashboard

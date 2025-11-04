@@ -41,21 +41,19 @@ check: fmt lint test
 lambda:
 	@echo "Building Mailflow Lambda functions for ARM64..."
 	@echo ""
+	@mkdir -p infra/assets
 	@echo "📦 Building mailflow-worker..."
-	@cargo build --release --package mailflow-worker --target aarch64-unknown-linux-gnu
+	@CARGO_TARGET_DIR=./target cargo lambda build --release --arm64 --package mailflow-worker
+	@cp target/lambda/bootstrap/bootstrap infra/assets/bootstrap
+	@cd infra/assets && zip -j mailflow-worker.zip bootstrap && rm bootstrap
 	@echo ""
 	@echo "📦 Building mailflow-api..."
-	@cargo build --release --package mailflow-api --target aarch64-unknown-linux-gnu
-	@echo ""
-	@echo "📦 Packaging Lambda functions..."
-	@mkdir -p assets
-	@cp ~/.target/aarch64-unknown-linux-gnu/release/bootstrap assets/bootstrap
-	@cd assets && zip -j bootstrap.zip bootstrap && rm bootstrap
-	@cp ~/.target/aarch64-unknown-linux-gnu/release/bootstrap assets/api-bootstrap
-	@cd assets && zip -j api-bootstrap.zip api-bootstrap && rm api-bootstrap
+	@CARGO_TARGET_DIR=./target cargo lambda build --release --arm64 --package mailflow-api
+	@cp target/lambda/bootstrap/bootstrap infra/assets/bootstrap
+	@cd infra/assets && zip -j mailflow-api.zip bootstrap && rm bootstrap
 	@echo ""
 	@echo "✅ Lambda functions packaged:"
-	@ls -lh assets/*.zip
+	@ls -lh infra/assets/*.zip
 	@echo ""
 	@echo "To deploy: cd infra && pulumi up"
 
@@ -63,21 +61,19 @@ lambda:
 lambda-x86:
 	@echo "Building Mailflow Lambda functions for x86_64..."
 	@echo ""
+	@mkdir -p infra/assets
 	@echo "📦 Building mailflow-worker..."
-	@cargo build --release --package mailflow-worker --target x86_64-unknown-linux-gnu
+	@CARGO_TARGET_DIR=./target cargo lambda build --release --x86-64 --package mailflow-worker
+	@cp target/lambda/bootstrap/bootstrap infra/assets/bootstrap
+	@cd infra/assets && zip -j mailflow-worker.zip bootstrap && rm bootstrap
 	@echo ""
 	@echo "📦 Building mailflow-api..."
-	@cargo build --release --package mailflow-api --target x86_64-unknown-linux-gnu
-	@echo ""
-	@echo "📦 Packaging Lambda functions..."
-	@mkdir -p assets
-	@cp ~/.target/x86_64-unknown-linux-gnu/release/bootstrap assets/bootstrap
-	@cd assets && zip -j bootstrap.zip bootstrap && rm bootstrap
-	@cp ~/.target/x86_64-unknown-linux-gnu/release/bootstrap assets/api-bootstrap
-	@cd assets && zip -j api-bootstrap.zip api-bootstrap && rm api-bootstrap
+	@CARGO_TARGET_DIR=./target cargo lambda build --release --x86-64 --package mailflow-api
+	@cp target/lambda/bootstrap/bootstrap infra/assets/bootstrap
+	@cd infra/assets && zip -j mailflow-api.zip bootstrap && rm bootstrap
 	@echo ""
 	@echo "✅ Lambda functions packaged:"
-	@ls -lh assets/*.zip
+	@ls -lh infra/assets/*.zip
 	@echo ""
 	@echo "To deploy: cd infra && pulumi up"
 
@@ -95,7 +91,7 @@ dashboard-deploy: dashboard-build
 	@echo "Note: CloudFront cache may need to be invalidated"
 
 # Deploy infrastructure with Pulumi
-deploy-infra:
+deploy-infra: lambda
 	@echo "Deploying infrastructure..."
 	@cd infra && pulumi up
 
@@ -107,7 +103,7 @@ deploy: lambda dashboard-build deploy-infra dashboard-deploy
 clean:
 	@echo "Cleaning..."
 	@cargo clean
-	@rm -rf assets/*.zip
+	@rm -rf infra/assets/*.zip
 
 # Run cargo audit for security vulnerabilities
 audit:

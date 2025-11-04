@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useCustom, useNavigation } from '@refinedev/core';
-import { Card, Tabs, Form, Input, Button, Select, message, Alert, Table, Upload, Space } from 'antd';
+import { useCustom } from '@refinedev/core';
+import { useNavigate } from 'react-router-dom';
+import { Card, Tabs, Form, Input, Button, Select, message, Alert, Table, Upload } from 'antd';
 import { SendOutlined, UploadOutlined, FileSearchOutlined } from '@ant-design/icons';
 import { apiClient } from '../../utils/api';
 
@@ -9,7 +10,7 @@ const { TextArea } = Input;
 export const TestEmailPage = () => {
   const [result, setResult] = useState<any>(null);
   const [attachments, setAttachments] = useState<any[]>([]);
-  const { push } = useNavigation();
+  const navigate = useNavigate();
 
   const { query: historyQuery } = useCustom({
     url: '/test/history',
@@ -94,7 +95,7 @@ export const TestEmailPage = () => {
         <Button
           size="small"
           icon={<FileSearchOutlined />}
-          onClick={() => push(`/logs?messageId=${record.messageId}`)}
+          onClick={() => navigate(`/logs?messageId=${record.messageId}`)}
         >
           View Logs
         </Button>
