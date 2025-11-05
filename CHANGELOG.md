@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [mailflow-worker-v0.3.1](https://github.com/compare/mailflow-worker-v0.3.0..mailflow-worker-v0.3.1) - 2025-11-05
+
+### Miscellaneous Chores
+
+- update gh action - ([89fc180](https://github.com/commit/89fc180261d3f11dcca0152e10e5c4b26e275dff)) - Tyr Chen
+- bump version - ([2dd42dd](https://github.com/commit/2dd42dd8988dfc1a654707cb0f84dcd5b7f97d18)) - Tyr Chen
+
+### Other
+
+- Update CHANGELOG.md - ([fd76e4c](https://github.com/commit/fd76e4c75ceedd6df2891f39f6814b0593d584c0)) - Tyr Chen
+
+---
 ## [mailflow-worker-v0.3.0](https://github.com/compare/v0.2.2..mailflow-worker-v0.3.0) - 2025-11-05
 
 ### Bug Fixes
