@@ -5,7 +5,7 @@ Cargo.lock
 .vscode/settings.json
 
 # Infra assets
-infra/assets/
+infra/assets/*.zip
 *jwks.json
 
 # REST Client local files with secrets

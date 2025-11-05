@@ -5,7 +5,7 @@ on:
     branches:
       - master
     tags:
-      - '*-v*'
+      - mailflow-api-v*
   pull_request:
     branches:
       - master
@@ -80,7 +80,7 @@ jobs:
           version: 0.14.0
 
       - name: Build for Lambda (ARM64)
-        run: cargo lambda build --release --arm64 --output-format zip
+        run: make lambda
 
       - name: Generate a changelog
         uses: orhun/git-cliff-action@v4
@@ -96,4 +96,4 @@ jobs:
         with:
           body: ${{ steps.git-cliff.outputs.content }}
           files: |
-            target/lambda/mailflow/bootstrap.zip
+            infra/assets/*.zip

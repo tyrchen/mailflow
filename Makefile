@@ -180,7 +180,6 @@ help:
 	@echo ""
 	@echo "Deployment:"
 	@echo "  lambda           - Build Lambda functions (worker + API) for ARM64"
-	@echo "  lambda-x86       - Build Lambda functions for x86_64"
 	@echo "  dashboard-build  - Build dashboard frontend (React)"
 	@echo "  dashboard-deploy - Deploy dashboard to S3"
 	@echo "  deploy-infra     - Deploy infrastructure with Pulumi"
